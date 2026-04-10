@@ -169,7 +169,8 @@ class QuizAttemptController extends Controller
         $sectionQuestions = $currentSection->sectionQuestions;
         $currentQuestionIndex = $sectionQuestions->search(fn ($sq) => $sq->question_id === $attempt->current_question_id);
         $currentQuestionIndex = $currentQuestionIndex === false ? 0 : $currentQuestionIndex;
-        $currentQuestion = $sectionQuestions[$currentQuestionIndex]->question;
+        $sectionQuestion = $sectionQuestions[$currentQuestionIndex];
+        $currentQuestion = $sectionQuestion->question;
 
         $answer = $attempt->answers->firstWhere('question_id', $currentQuestion->id);
 
@@ -194,7 +195,11 @@ class QuizAttemptController extends Controller
                 'time_limit_seconds' => $currentSection->time_limit_seconds,
                 'question_count' => $sectionQuestions->count(),
             ],
-            'question' => $this->serializeQuestion($currentQuestion, $sectionQuestions[$currentQuestionIndex]->question_version),
+            'question' => $this->serializeQuestion(
+                $currentQuestion,
+                $sectionQuestion->question_version,
+                $sectionQuestion->time_limit_override_seconds
+            ),
             'answer' => $answer ? $this->serializeAnswer($answer) : null,
             'progress' => [
                 'question_index' => $currentQuestionIndex + 1,
@@ -206,9 +211,11 @@ class QuizAttemptController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function serializeQuestion(Question $question, int $questionVersion): array
+    private function serializeQuestion(Question $question, int $questionVersion, ?int $overrideQuestionTimeLimit): array
     {
         $question->loadMissing(['options', 'codingConfig']);
+
+        $effectiveQuestionTimeLimit = $overrideQuestionTimeLimit ?? $question->time_limit_seconds;
 
         return [
             'id' => $question->id,
@@ -217,8 +224,9 @@ class QuizAttemptController extends Controller
             'stem' => $question->stem,
             'instructions' => $question->instructions,
             'points' => (float) $question->points,
+            'time_limit_seconds' => $effectiveQuestionTimeLimit,
             'options' => $question->type !== QuestionType::Coding
-                ? $question->options->map(fn ($o) => [
+                ? $question->options->sortBy('position')->values()->map(fn ($o) => [
                     'id' => $o->id,
                     'content_type' => $o->content_type,
                     'content' => $o->content,
