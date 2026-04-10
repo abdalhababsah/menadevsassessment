@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuizController;
+use App\Http\Controllers\Admin\QuizSectionController;
+use App\Http\Controllers\Admin\QuizSectionQuestionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
@@ -48,6 +50,28 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('quizzes/{quiz}/publish', [QuizController::class, 'publish'])->name('quizzes.publish');
         Route::post('quizzes/{quiz}/unpublish', [QuizController::class, 'unpublish'])->name('quizzes.unpublish');
         Route::post('quizzes/{quiz}/duplicate', [QuizController::class, 'duplicate'])->name('quizzes.duplicate');
+
+        // Builder routes
+        Route::get('quizzes/{quiz}/builder', [QuizController::class, 'builder'])->name('quizzes.builder');
+
+        // Sections
+        Route::post('quizzes/{quiz}/sections', [QuizSectionController::class, 'store'])->name('quizzes.sections.store');
+        Route::put('quizzes/{quiz}/sections/{section}', [QuizSectionController::class, 'update'])->name('quizzes.sections.update');
+        Route::delete('quizzes/{quiz}/sections/{section}', [QuizSectionController::class, 'destroy'])->name('quizzes.sections.destroy');
+        Route::post('quizzes/{quiz}/sections/reorder', [QuizSectionController::class, 'reorder'])->name('quizzes.sections.reorder');
+
+        // Section questions
+        Route::get('quizzes/{quiz}/bank-search', [QuizSectionQuestionController::class, 'bankSearch'])->name('quizzes.bank-search');
+        Route::post('quizzes/{quiz}/sections/{section}/questions', [QuizSectionQuestionController::class, 'attach'])->name('quizzes.sections.questions.attach');
+        Route::delete('quizzes/{quiz}/sections/{section}/questions/{sectionQuestion}', [QuizSectionQuestionController::class, 'detach'])->name('quizzes.sections.questions.detach');
+        Route::put('quizzes/{quiz}/sections/{section}/questions/{sectionQuestion}', [QuizSectionQuestionController::class, 'updatePivot'])->name('quizzes.sections.questions.update');
+        Route::post('quizzes/{quiz}/sections/{section}/questions/reorder', [QuizSectionQuestionController::class, 'reorder'])->name('quizzes.sections.questions.reorder');
+
+        // Inline question creation per type
+        Route::post('quizzes/{quiz}/sections/{section}/questions/inline/single-select', [QuizSectionQuestionController::class, 'createInlineSingleSelect'])->name('quizzes.sections.questions.inline.single-select');
+        Route::post('quizzes/{quiz}/sections/{section}/questions/inline/multi-select', [QuizSectionQuestionController::class, 'createInlineMultiSelect'])->name('quizzes.sections.questions.inline.multi-select');
+        Route::post('quizzes/{quiz}/sections/{section}/questions/inline/coding', [QuizSectionQuestionController::class, 'createInlineCoding'])->name('quizzes.sections.questions.inline.coding');
+        Route::post('quizzes/{quiz}/sections/{section}/questions/inline/rlhf', [QuizSectionQuestionController::class, 'createInlineRlhf'])->name('quizzes.sections.questions.inline.rlhf');
     });
 
     Route::middleware('can:questionbank.view')->prefix('admin')->name('admin.')->group(function () {

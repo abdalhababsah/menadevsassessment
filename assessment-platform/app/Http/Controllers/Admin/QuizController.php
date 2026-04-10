@@ -113,6 +113,57 @@ class QuizController extends Controller
             ->with('success', 'Settings saved.');
     }
 
+    public function builder(Quiz $quiz): Response
+    {
+        $this->authorize('update', $quiz);
+
+        $quiz->load([
+            'sections' => fn ($q) => $q->orderBy('position'),
+            'sections.sectionQuestions' => fn ($q) => $q->orderBy('position'),
+            'sections.sectionQuestions.question:id,type,stem,difficulty,points,version',
+        ]);
+
+        $sections = $quiz->sections->map(function ($section): array {
+            return [
+                'id' => $section->id,
+                'title' => $section->title,
+                'description' => $section->description,
+                'time_limit_seconds' => $section->time_limit_seconds,
+                'position' => $section->position,
+                'questions' => $section->sectionQuestions->map(function ($sectionQuestion): array {
+                    /** @var \App\Models\Question|null $question */
+                    $question = $sectionQuestion->question;
+
+                    return [
+                        'id' => $sectionQuestion->id,
+                        'question_id' => $sectionQuestion->question_id,
+                        'question_version' => $sectionQuestion->question_version,
+                        'points_override' => $sectionQuestion->points_override === null ? null : (float) $sectionQuestion->points_override,
+                        'time_limit_override_seconds' => $sectionQuestion->time_limit_override_seconds,
+                        'position' => $sectionQuestion->position,
+                        'question' => $question === null ? null : [
+                            'type' => $question->type->value,
+                            'type_label' => $question->type->label(),
+                            'stem' => Str::limit($question->stem, 140),
+                            'difficulty' => $question->difficulty->value,
+                            'points' => (float) $question->points,
+                            'version' => $question->version,
+                        ],
+                    ];
+                })->all(),
+            ];
+        })->all();
+
+        return Inertia::render('Admin/Quizzes/Edit/Builder', [
+            'quiz' => [
+                'id' => $quiz->id,
+                'title' => $quiz->title,
+                'status' => $quiz->status->value,
+            ],
+            'sections' => $sections,
+        ]);
+    }
+
     public function destroy(Quiz $quiz, DeleteQuizAction $action): RedirectResponse
     {
         $this->authorize('delete', $quiz);
