@@ -1,7 +1,7 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "php",
+            "command": "/opt/homebrew/opt/php@8.3/bin/php",
             "args": [
                 "artisan",
                 "boost:mcp"

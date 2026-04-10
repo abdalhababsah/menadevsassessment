@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property QuestionType $type
+ * @property QuestionDifficulty $difficulty
+ */
 class Question extends Model
 {
     /** @use HasFactory<QuestionFactory> */
@@ -80,6 +84,30 @@ class Question extends Model
     public function testCases(): HasMany
     {
         return $this->hasMany(CodingTestCase::class);
+    }
+
+    /**
+     * @return HasOne<RlhfQuestionConfig, $this>
+     */
+    public function rlhfConfig(): HasOne
+    {
+        return $this->hasOne(RlhfQuestionConfig::class);
+    }
+
+    /**
+     * @return HasMany<RlhfCriterion, $this>
+     */
+    public function rlhfCriteria(): HasMany
+    {
+        return $this->hasMany(RlhfCriterion::class)->orderBy('position');
+    }
+
+    /**
+     * @return HasMany<RlhfQuestionFormField, $this>
+     */
+    public function rlhfFormFields(): HasMany
+    {
+        return $this->hasMany(RlhfQuestionFormField::class)->orderBy('position');
     }
 
     /**
