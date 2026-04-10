@@ -120,12 +120,16 @@ Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])->na
 Route::middleware('auth:candidate')->group(function () {
     Route::get('/quiz/start', [PreQuizController::class, 'show'])->name('candidate.pre-quiz');
     Route::post('/quiz/start', [CandidateQuizAttemptController::class, 'start'])->name('candidate.quiz.start');
-    Route::get('/quiz/run', [CandidateQuizAttemptController::class, 'run'])->name('candidate.quiz.run');
-    Route::get('/quiz/current', [CandidateQuizAttemptController::class, 'current'])->name('candidate.quiz.current');
-    Route::post('/quiz/answer', [CandidateQuizAttemptController::class, 'submitAnswer'])->name('candidate.quiz.answer');
-    Route::post('/quiz/next-question', [CandidateQuizAttemptController::class, 'nextQuestion'])->name('candidate.quiz.next-question');
-    Route::post('/quiz/next-section', [CandidateQuizAttemptController::class, 'nextSection'])->name('candidate.quiz.next-section');
-    Route::post('/quiz/submit', [CandidateQuizAttemptController::class, 'submit'])->name('candidate.quiz.submit');
+
+    Route::middleware('candidate.attempt')->group(function () {
+        Route::get('/quiz/run', [CandidateQuizAttemptController::class, 'run'])->name('candidate.quiz.run');
+        Route::get('/quiz/current', [CandidateQuizAttemptController::class, 'current'])->name('candidate.quiz.current');
+        Route::post('/quiz/answer', [CandidateQuizAttemptController::class, 'submitAnswer'])->name('candidate.quiz.answer');
+        Route::post('/quiz/previous-question', [CandidateQuizAttemptController::class, 'previousQuestion'])->name('candidate.quiz.previous-question');
+        Route::post('/quiz/next-question', [CandidateQuizAttemptController::class, 'nextQuestion'])->name('candidate.quiz.next-question');
+        Route::post('/quiz/next-section', [CandidateQuizAttemptController::class, 'nextSection'])->name('candidate.quiz.next-section');
+        Route::post('/quiz/submit', [CandidateQuizAttemptController::class, 'submit'])->name('candidate.quiz.submit');
+    });
 });
 
 require __DIR__.'/auth.php';
