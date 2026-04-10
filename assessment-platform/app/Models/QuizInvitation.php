@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
+/**
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $revoked_at
+ */
 class QuizInvitation extends Model
 {
     /** @use HasFactory<QuizInvitationFactory> */

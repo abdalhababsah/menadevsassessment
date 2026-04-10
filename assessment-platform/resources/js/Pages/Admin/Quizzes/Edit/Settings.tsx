@@ -60,6 +60,27 @@ export default function Settings({ quiz }: { quiz: QuizSettings }) {
                         {quiz.status}
                     </span>
                 </div>
+
+                <div className="mt-4 flex gap-1 border-b border-gray-200 text-sm">
+                    <Link
+                        href={route('admin.quizzes.edit', quiz.id)}
+                        className="border-b-2 border-indigo-600 px-3 py-2 font-medium text-indigo-600"
+                    >
+                        Settings
+                    </Link>
+                    <Link
+                        href={route('admin.quizzes.builder', quiz.id)}
+                        className="border-b-2 border-transparent px-3 py-2 text-gray-500 hover:text-gray-700"
+                    >
+                        Builder
+                    </Link>
+                    <Link
+                        href={route('admin.quizzes.invitations.index', quiz.id)}
+                        className="border-b-2 border-transparent px-3 py-2 text-gray-500 hover:text-gray-700"
+                    >
+                        Invitations
+                    </Link>
+                </div>
             </div>
 
             <form onSubmit={submit} className="max-w-3xl">

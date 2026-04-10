@@ -9,10 +9,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property AttemptStatus $status
  * @property RlhfReviewStatus $rlhf_review_status
+ * @property Carbon $started_at
+ * @property Carbon|null $submitted_at
+ * @property Carbon|null $section_started_at
+ * @property Carbon|null $question_started_at
  */
 class QuizAttempt extends Model
 {
@@ -23,8 +28,12 @@ class QuizAttempt extends Model
         'quiz_id',
         'candidate_id',
         'invitation_id',
+        'current_section_id',
+        'current_question_id',
         'started_at',
         'submitted_at',
+        'section_started_at',
+        'question_started_at',
         'status',
         'auto_score',
         'final_score',
@@ -40,6 +49,8 @@ class QuizAttempt extends Model
             'rlhf_review_status' => RlhfReviewStatus::class,
             'started_at' => 'datetime',
             'submitted_at' => 'datetime',
+            'section_started_at' => 'datetime',
+            'question_started_at' => 'datetime',
             'auto_score' => 'decimal:2',
             'final_score' => 'decimal:2',
         ];
@@ -67,6 +78,22 @@ class QuizAttempt extends Model
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(QuizInvitation::class);
+    }
+
+    /**
+     * @return BelongsTo<QuizSection, $this>
+     */
+    public function currentSection(): BelongsTo
+    {
+        return $this->belongsTo(QuizSection::class, 'current_section_id');
+    }
+
+    /**
+     * @return BelongsTo<Question, $this>
+     */
+    public function currentQuestion(): BelongsTo
+    {
+        return $this->belongsTo(Question::class, 'current_question_id');
     }
 
     /**

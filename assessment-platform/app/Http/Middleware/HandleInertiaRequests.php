@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,18 +30,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user();
+        // Only the dashboard `web` guard exposes permission data; candidate
+        // sessions render against the public Candidate/* pages and don't need it.
+        $webUser = $request->user('web');
 
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $user ? [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'is_super_admin' => $user->is_super_admin,
-                    'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
-                    'roles' => $user->getRoleNames()->toArray(),
+                'user' => $webUser instanceof User ? [
+                    'id' => $webUser->id,
+                    'name' => $webUser->name,
+                    'email' => $webUser->email,
+                    'is_super_admin' => $webUser->is_super_admin,
+                    'permissions' => $webUser->getAllPermissions()->pluck('name')->toArray(),
+                    'roles' => $webUser->getRoleNames()->toArray(),
                 ] : null,
             ],
         ];

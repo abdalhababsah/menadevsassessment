@@ -23,6 +23,13 @@ class Question extends Model
     /** @use HasFactory<QuestionFactory> */
     use HasFactory, SoftDeletes;
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'version' => 1,
+    ];
+
     protected $fillable = [
         'type',
         'stem',

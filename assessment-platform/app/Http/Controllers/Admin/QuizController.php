@@ -13,9 +13,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Quizzes\StoreQuizRequest;
 use App\Http\Requests\Admin\Quizzes\UpdateQuizSettingsRequest;
 use App\Models\Quiz;
+use App\Models\QuizSection;
+use App\Models\QuizSectionQuestion;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -123,36 +126,7 @@ class QuizController extends Controller
             'sections.sectionQuestions.question:id,type,stem,difficulty,points,version',
         ]);
 
-        $sections = $quiz->sections->map(function ($section): array {
-            return [
-                'id' => $section->id,
-                'title' => $section->title,
-                'description' => $section->description,
-                'time_limit_seconds' => $section->time_limit_seconds,
-                'position' => $section->position,
-                'questions' => $section->sectionQuestions->map(function ($sectionQuestion): array {
-                    /** @var \App\Models\Question|null $question */
-                    $question = $sectionQuestion->question;
-
-                    return [
-                        'id' => $sectionQuestion->id,
-                        'question_id' => $sectionQuestion->question_id,
-                        'question_version' => $sectionQuestion->question_version,
-                        'points_override' => $sectionQuestion->points_override === null ? null : (float) $sectionQuestion->points_override,
-                        'time_limit_override_seconds' => $sectionQuestion->time_limit_override_seconds,
-                        'position' => $sectionQuestion->position,
-                        'question' => $question === null ? null : [
-                            'type' => $question->type->value,
-                            'type_label' => $question->type->label(),
-                            'stem' => Str::limit($question->stem, 140),
-                            'difficulty' => $question->difficulty->value,
-                            'points' => (float) $question->points,
-                            'version' => $question->version,
-                        ],
-                    ];
-                })->all(),
-            ];
-        })->all();
+        $sections = $this->serializeSections($quiz);
 
         return Inertia::render('Admin/Quizzes/Edit/Builder', [
             'quiz' => [
@@ -162,6 +136,59 @@ class QuizController extends Controller
             ],
             'sections' => $sections,
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function serializeSections(Quiz $quiz): array
+    {
+        $result = [];
+
+        foreach ($quiz->sections as $section) {
+            /** @var QuizSection $section */
+            $questions = [];
+            foreach ($section->sectionQuestions as $sectionQuestion) {
+                /** @var QuizSectionQuestion $sectionQuestion */
+                $questions[] = $this->serializeSectionQuestion($sectionQuestion);
+            }
+
+            $result[] = [
+                'id' => $section->id,
+                'title' => $section->title,
+                'description' => $section->description,
+                'time_limit_seconds' => $section->time_limit_seconds,
+                'position' => $section->position,
+                'questions' => $questions,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeSectionQuestion(QuizSectionQuestion $sectionQuestion): array
+    {
+        $question = $sectionQuestion->question;
+
+        return [
+            'id' => $sectionQuestion->id,
+            'question_id' => $sectionQuestion->question_id,
+            'question_version' => $sectionQuestion->question_version,
+            'points_override' => $sectionQuestion->points_override === null ? null : (float) $sectionQuestion->points_override,
+            'time_limit_override_seconds' => $sectionQuestion->time_limit_override_seconds,
+            'position' => $sectionQuestion->position,
+            'question' => $question === null ? null : [
+                'type' => $question->type->value,
+                'type_label' => $question->type->label(),
+                'stem' => Str::limit($question->stem, 140),
+                'difficulty' => $question->difficulty->value,
+                'points' => (float) $question->points,
+                'version' => $question->version,
+            ],
+        ];
     }
 
     public function destroy(Quiz $quiz, DeleteQuizAction $action): RedirectResponse

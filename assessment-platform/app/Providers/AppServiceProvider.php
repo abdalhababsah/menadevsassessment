@@ -10,6 +10,7 @@ use App\Policies\RolePolicy;
 use App\Services\AiProviders\Anthropic\AnthropicResponseGenerator;
 use App\Services\CodeRunners\SandboxedCodeRunner;
 use App\Services\QuestionBank\QuestionVersioningService;
+use App\Services\Scoring\QuizScoringService;
 use App\Services\Storage\LocalMediaStorage;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MediaStorage::class, LocalMediaStorage::class);
 
         $this->app->singleton(QuestionVersioningService::class);
+        $this->app->singleton(QuizScoringService::class);
     }
 
     /**

@@ -2,11 +2,16 @@
 
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuizController;
+use App\Http\Controllers\Admin\QuizInvitationController;
 use App\Http\Controllers\Admin\QuizSectionController;
 use App\Http\Controllers\Admin\QuizSectionQuestionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\InvitationController;
+use App\Http\Controllers\Candidate\AuthController as CandidateAuthController;
+use App\Http\Controllers\Candidate\InvitationController as CandidateInvitationController;
+use App\Http\Controllers\Candidate\PreQuizController;
+use App\Http\Controllers\Candidate\QuizAttemptController as CandidateQuizAttemptController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +77,11 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('quizzes/{quiz}/sections/{section}/questions/inline/multi-select', [QuizSectionQuestionController::class, 'createInlineMultiSelect'])->name('quizzes.sections.questions.inline.multi-select');
         Route::post('quizzes/{quiz}/sections/{section}/questions/inline/coding', [QuizSectionQuestionController::class, 'createInlineCoding'])->name('quizzes.sections.questions.inline.coding');
         Route::post('quizzes/{quiz}/sections/{section}/questions/inline/rlhf', [QuizSectionQuestionController::class, 'createInlineRlhf'])->name('quizzes.sections.questions.inline.rlhf');
+
+        // Quiz invitations
+        Route::get('quizzes/{quiz}/invitations', [QuizInvitationController::class, 'index'])->name('quizzes.invitations.index');
+        Route::post('quizzes/{quiz}/invitations', [QuizInvitationController::class, 'store'])->name('quizzes.invitations.store');
+        Route::delete('quizzes/{quiz}/invitations/{invitation}', [QuizInvitationController::class, 'destroy'])->name('quizzes.invitations.destroy');
     });
 
     Route::middleware('can:questionbank.view')->prefix('admin')->name('admin.')->group(function () {
@@ -94,5 +104,28 @@ Route::middleware(['auth', 'active'])->group(function () {
 // Public invitation routes (unauthenticated)
 Route::get('/invitations/{token}', [InvitationController::class, 'show'])->name('invitations.show');
 Route::post('/invitations/{token}', [InvitationController::class, 'store'])->name('invitations.store');
+
+// Public quiz invitation landing page (short-link)
+Route::get('/i/{token}', [CandidateInvitationController::class, 'show'])->name('candidate.invitations.show');
+
+// Candidate auth flow (public, session-driven)
+Route::post('/candidate/email', [CandidateAuthController::class, 'submitEmail'])->name('candidate.email.submit');
+Route::get('/candidate/check-email', [CandidateAuthController::class, 'showCheckEmail'])->name('candidate.check-email');
+Route::get('/candidate/verify-email', [CandidateAuthController::class, 'verify'])->name('candidate.verify-email');
+Route::get('/candidate/register', [CandidateAuthController::class, 'showRegister'])->name('candidate.register');
+Route::post('/candidate/register', [CandidateAuthController::class, 'register']);
+Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])->name('candidate.logout');
+
+// Candidate authenticated routes
+Route::middleware('auth:candidate')->group(function () {
+    Route::get('/quiz/start', [PreQuizController::class, 'show'])->name('candidate.pre-quiz');
+    Route::post('/quiz/start', [CandidateQuizAttemptController::class, 'start'])->name('candidate.quiz.start');
+    Route::get('/quiz/run', [CandidateQuizAttemptController::class, 'run'])->name('candidate.quiz.run');
+    Route::get('/quiz/current', [CandidateQuizAttemptController::class, 'current'])->name('candidate.quiz.current');
+    Route::post('/quiz/answer', [CandidateQuizAttemptController::class, 'submitAnswer'])->name('candidate.quiz.answer');
+    Route::post('/quiz/next-question', [CandidateQuizAttemptController::class, 'nextQuestion'])->name('candidate.quiz.next-question');
+    Route::post('/quiz/next-section', [CandidateQuizAttemptController::class, 'nextSection'])->name('candidate.quiz.next-section');
+    Route::post('/quiz/submit', [CandidateQuizAttemptController::class, 'submit'])->name('candidate.quiz.submit');
+});
 
 require __DIR__.'/auth.php';
