@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $rlhf_turn_id
+ * @property int $criterion_id
+ * @property string $response_side
+ * @property string $rating_value
+ * @property string|null $justification
+ */
 class AttemptRlhfEvaluation extends Model
 {
     /** @use HasFactory<AttemptRlhfEvaluationFactory> */

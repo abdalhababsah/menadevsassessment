@@ -7,7 +7,15 @@ use Database\Factories\AttemptSuspiciousEventFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $quiz_attempt_id
+ * @property SuspiciousEventType $event_type
+ * @property Carbon|null $occurred_at
+ * @property array<string, mixed>|null $metadata
+ */
 class AttemptSuspiciousEvent extends Model
 {
     /** @use HasFactory<AttemptSuspiciousEventFactory> */

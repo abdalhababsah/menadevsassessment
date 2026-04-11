@@ -15,6 +15,8 @@ type TimerState = {
     questionRemaining: number | null;
 };
 
+type ExpiredTimer = 'quiz' | 'section' | 'question' | null;
+
 export function useQuizTimer({
     quizSeconds,
     sectionSeconds,
@@ -29,9 +31,16 @@ export function useQuizTimer({
         questionRemaining: questionSeconds,
     });
 
-    const quizCalled = useRef(false);
-    const sectionCalled = useRef(false);
-    const questionCalled = useRef(false);
+    const expiredRef = useRef<ExpiredTimer>(null);
+    const onQuizExpireRef = useRef(onQuizExpire);
+    const onSectionExpireRef = useRef(onSectionExpire);
+    const onQuestionExpireRef = useRef(onQuestionExpire);
+
+    useEffect(() => {
+        onQuizExpireRef.current = onQuizExpire;
+        onSectionExpireRef.current = onSectionExpire;
+        onQuestionExpireRef.current = onQuestionExpire;
+    }, [onQuizExpire, onSectionExpire, onQuestionExpire]);
 
     useEffect(() => {
         setState({
@@ -39,46 +48,54 @@ export function useQuizTimer({
             sectionRemaining: sectionSeconds,
             questionRemaining: questionSeconds,
         });
-        quizCalled.current = false;
-        sectionCalled.current = false;
-        questionCalled.current = false;
+        expiredRef.current = null;
     }, [quizSeconds, sectionSeconds, questionSeconds]);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setState((prev) => {
-                const next: TimerState = { ...prev };
+        const interval = window.setInterval(() => {
+            let expired: ExpiredTimer = null;
 
-                if (next.quizRemaining !== null) {
-                    next.quizRemaining = Math.max(0, next.quizRemaining - 1);
-                    if (next.quizRemaining === 0 && !quizCalled.current) {
-                        quizCalled.current = true;
-                        onQuizExpire?.();
-                    }
+            setState((previous) => {
+                const next: TimerState = {
+                    quizRemaining: previous.quizRemaining === null ? null : Math.max(0, previous.quizRemaining - 1),
+                    sectionRemaining:
+                        previous.sectionRemaining === null ? null : Math.max(0, previous.sectionRemaining - 1),
+                    questionRemaining:
+                        previous.questionRemaining === null ? null : Math.max(0, previous.questionRemaining - 1),
+                };
+
+                if (expiredRef.current !== null) {
+                    return next;
                 }
 
-                if (next.sectionRemaining !== null) {
-                    next.sectionRemaining = Math.max(0, next.sectionRemaining - 1);
-                    if (next.sectionRemaining === 0 && !sectionCalled.current) {
-                        sectionCalled.current = true;
-                        onSectionExpire?.();
-                    }
-                }
-
-                if (next.questionRemaining !== null) {
-                    next.questionRemaining = Math.max(0, next.questionRemaining - 1);
-                    if (next.questionRemaining === 0 && !questionCalled.current) {
-                        questionCalled.current = true;
-                        onQuestionExpire?.();
-                    }
+                if (next.quizRemaining === 0) {
+                    expired = 'quiz';
+                } else if (next.sectionRemaining === 0) {
+                    expired = 'section';
+                } else if (next.questionRemaining === 0) {
+                    expired = 'question';
                 }
 
                 return next;
             });
+
+            if (expired === null || expiredRef.current !== null) {
+                return;
+            }
+
+            expiredRef.current = expired;
+
+            if (expired === 'quiz') {
+                onQuizExpireRef.current?.();
+            } else if (expired === 'section') {
+                onSectionExpireRef.current?.();
+            } else {
+                onQuestionExpireRef.current?.();
+            }
         }, 1000);
 
-        return () => clearInterval(interval);
-    }, [onQuizExpire, onSectionExpire, onQuestionExpire]);
+        return () => window.clearInterval(interval);
+    }, []);
 
     return state;
 }

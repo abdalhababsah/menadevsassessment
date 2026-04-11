@@ -66,15 +66,13 @@ class EnsureCandidateOwnsAttempt
 
     private function staleAttemptResponse(Request $request): JsonResponse|RedirectResponse
     {
-        $request->session()->forget('quiz_attempt_id');
-
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'This quiz attempt is no longer in progress.',
+                'redirect' => route('candidate.quiz.submitted'),
             ], 409);
         }
 
-        return redirect()->route('candidate.pre-quiz')
-            ->withErrors(['quiz' => 'This assessment attempt is no longer in progress.']);
+        return redirect()->route('candidate.quiz.submitted');
     }
 }

@@ -6,7 +6,15 @@ use Database\Factories\AttemptCameraSnapshotFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $quiz_attempt_id
+ * @property string $url
+ * @property Carbon|null $captured_at
+ * @property bool $flagged
+ */
 class AttemptCameraSnapshot extends Model
 {
     /** @use HasFactory<AttemptCameraSnapshotFactory> */

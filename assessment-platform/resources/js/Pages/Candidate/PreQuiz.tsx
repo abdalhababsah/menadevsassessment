@@ -1,5 +1,6 @@
 import CandidateLayout from '@/Layouts/CandidateLayout';
-import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
+import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface Props {
@@ -31,6 +32,7 @@ function formatDuration(seconds: number | null): string {
 export default function PreQuiz({ candidate, quiz, invitation_token }: Props) {
     const [cameraGranted, setCameraGranted] = useState(!quiz.camera_enabled);
     const [requestingCamera, setRequestingCamera] = useState(false);
+    const [starting, setStarting] = useState(false);
 
     const requestCamera = async () => {
         setRequestingCamera(true);
@@ -46,9 +48,16 @@ export default function PreQuiz({ candidate, quiz, invitation_token }: Props) {
         }
     };
 
-    const startQuiz = () => {
-        // Quiz start endpoint will be wired in the next prompt.
-        router.post('/quiz/start', { invitation_token });
+    const startQuiz = async () => {
+        setStarting(true);
+
+        try {
+            const { data } = await axios.post('/quiz/start', { invitation_token });
+            window.location.assign(data.run_url);
+        } catch {
+            setStarting(false);
+            alert('The assessment could not be started. Refresh the page and try again.');
+        }
     };
 
     const canStart = cameraGranted;
@@ -143,10 +152,10 @@ export default function PreQuiz({ candidate, quiz, invitation_token }: Props) {
                         <button
                             type="button"
                             onClick={startQuiz}
-                            disabled={!canStart}
+                            disabled={!canStart || starting}
                             className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
                         >
-                            Start Quiz
+                            {starting ? 'Starting…' : 'Start Quiz'}
                         </button>
                     </div>
                 </div>

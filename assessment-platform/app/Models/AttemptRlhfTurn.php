@@ -10,10 +10,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
+ * @property int $id
+ * @property int $attempt_answer_id
+ * @property int $turn_number
+ * @property string|null $candidate_input
+ * @property string|null $candidate_input_audio_url
+ * @property string|null $response_a
+ * @property string|null $response_b
+ * @property string $model_a
+ * @property string $model_b
  * @property RlhfTurnGenerationStatus $generation_status
- * @property ?SelectedSide $selected_side
+ * @property string|null $generation_error
+ * @property Carbon|null $generated_at
+ * @property int|null $sxs_rating
+ * @property string|null $sxs_justification
+ * @property SelectedSide|null $selected_side
+ * @property string|null $selected_response_rewrite
+ * @property Carbon|null $rewrite_completed_at
+ * @property Carbon|null $completed_at
+ * @property-read Collection<int, AttemptRlhfEvaluation> $evaluations
+ * @property-read Collection<int, AttemptRlhfFormResponse> $formResponses
  */
 class AttemptRlhfTurn extends Model
 {

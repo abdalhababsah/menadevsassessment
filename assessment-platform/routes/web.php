@@ -1,17 +1,24 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\CodingReviewController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuizController;
 use App\Http\Controllers\Admin\QuizInvitationController;
 use App\Http\Controllers\Admin\QuizSectionController;
 use App\Http\Controllers\Admin\QuizSectionQuestionController;
+use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\Admin\RlhfReviewController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\CameraSnapshotController;
+use App\Http\Controllers\Api\SuspiciousEventController;
 use App\Http\Controllers\Auth\InvitationController;
 use App\Http\Controllers\Candidate\AuthController as CandidateAuthController;
 use App\Http\Controllers\Candidate\InvitationController as CandidateInvitationController;
 use App\Http\Controllers\Candidate\PreQuizController;
 use App\Http\Controllers\Candidate\QuizAttemptController as CandidateQuizAttemptController;
+use App\Http\Controllers\Candidate\RlhfQuestionController as CandidateRlhfQuestionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -84,6 +91,44 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('quizzes/{quiz}/invitations/{invitation}', [QuizInvitationController::class, 'destroy'])->name('quizzes.invitations.destroy');
     });
 
+    // Results dashboard
+    Route::middleware('can:results.view')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('results', [ResultController::class, 'index'])->name('results.index');
+        Route::get('results/{quiz}', [ResultController::class, 'show'])->name('results.show');
+        Route::get('results/attempt/{attempt}', [ResultController::class, 'attempt'])->name('results.attempt');
+        Route::get('results/{quiz}/export', [ResultController::class, 'export'])
+            ->middleware('can:results.export')
+            ->name('results.export');
+    });
+
+    // RLHF reviewer
+    Route::middleware('can:rlhf.view')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('rlhf/review/{attemptAnswer}', [RlhfReviewController::class, 'show'])->name('rlhf.review.show');
+        Route::post('rlhf/review/{attemptAnswer}', [RlhfReviewController::class, 'store'])
+            ->middleware('can:rlhf.score')
+            ->name('rlhf.review.store');
+        Route::post('rlhf/review/{attemptAnswer}/finalize', [RlhfReviewController::class, 'finalize'])
+            ->middleware('can:rlhf.finalize')
+            ->name('rlhf.review.finalize');
+    });
+
+    // Coding reviewer
+    Route::middleware('can:coding.view')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('coding/review/{attemptAnswer}', [CodingReviewController::class, 'show'])->name('coding.review.show');
+        Route::post('coding/review/{attemptAnswer}/rerun', [CodingReviewController::class, 'rerun'])
+            ->middleware('can:coding.rerun')
+            ->name('coding.review.rerun');
+        Route::post('coding/review/{attemptAnswer}/override', [CodingReviewController::class, 'override'])
+            ->middleware('can:coding.override')
+            ->name('coding.review.override');
+    });
+
+    // Audit log viewer
+    Route::middleware('can:system.auditLog')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
+        Route::get('audit-log/{auditLog}', [AuditLogController::class, 'show'])->name('audit-log.show');
+    });
+
     Route::middleware('can:questionbank.view')->prefix('admin')->name('admin.')->group(function () {
         Route::get('questions', [QuestionController::class, 'index'])->name('questions.index');
         Route::get('questions/create/{type}', [QuestionController::class, 'create'])->name('questions.create');
@@ -105,8 +150,10 @@ Route::middleware(['auth', 'active'])->group(function () {
 Route::get('/invitations/{token}', [InvitationController::class, 'show'])->name('invitations.show');
 Route::post('/invitations/{token}', [InvitationController::class, 'store'])->name('invitations.store');
 
-// Public quiz invitation landing page (short-link)
-Route::get('/i/{token}', [CandidateInvitationController::class, 'show'])->name('candidate.invitations.show');
+// Public quiz invitation landing page (short-link) — throttled against token enumeration.
+Route::get('/i/{token}', [CandidateInvitationController::class, 'show'])
+    ->middleware('throttle:30,1')
+    ->name('candidate.invitations.show');
 
 // Candidate auth flow (public, session-driven)
 Route::post('/candidate/email', [CandidateAuthController::class, 'submitEmail'])->name('candidate.email.submit');
@@ -120,6 +167,7 @@ Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])->na
 Route::middleware('auth:candidate')->group(function () {
     Route::get('/quiz/start', [PreQuizController::class, 'show'])->name('candidate.pre-quiz');
     Route::post('/quiz/start', [CandidateQuizAttemptController::class, 'start'])->name('candidate.quiz.start');
+    Route::get('/quiz/submitted', [CandidateQuizAttemptController::class, 'submitted'])->name('candidate.quiz.submitted');
 
     Route::middleware('candidate.attempt')->group(function () {
         Route::get('/quiz/run', [CandidateQuizAttemptController::class, 'run'])->name('candidate.quiz.run');
@@ -128,7 +176,32 @@ Route::middleware('auth:candidate')->group(function () {
         Route::post('/quiz/previous-question', [CandidateQuizAttemptController::class, 'previousQuestion'])->name('candidate.quiz.previous-question');
         Route::post('/quiz/next-question', [CandidateQuizAttemptController::class, 'nextQuestion'])->name('candidate.quiz.next-question');
         Route::post('/quiz/next-section', [CandidateQuizAttemptController::class, 'nextSection'])->name('candidate.quiz.next-section');
-        Route::post('/quiz/submit', [CandidateQuizAttemptController::class, 'submit'])->name('candidate.quiz.submit');
+        Route::get('/quiz/confirm-submit', [CandidateQuizAttemptController::class, 'confirmSubmit'])->name('candidate.quiz.confirm-submit');
+        Route::post('/quiz/final-submit', [CandidateQuizAttemptController::class, 'finalSubmit'])->name('candidate.quiz.final-submit');
+
+        // RLHF runtime
+        Route::prefix('quiz/rlhf')->name('candidate.quiz.rlhf.')->group(function () {
+            Route::get('/', [CandidateRlhfQuestionController::class, 'show'])->name('show');
+            Route::post('/form', [CandidateRlhfQuestionController::class, 'submitFormResponse'])->name('form');
+            Route::post('/prompt-input', [CandidateRlhfQuestionController::class, 'submitPromptInput'])
+                ->middleware('throttle:10,1')
+                ->name('prompt-input');
+            Route::get('/generation-status', [CandidateRlhfQuestionController::class, 'pollGenerationStatus'])->name('generation-status');
+            Route::post('/evaluation', [CandidateRlhfQuestionController::class, 'submitEvaluation'])->name('evaluation');
+            Route::post('/sxs-rating', [CandidateRlhfQuestionController::class, 'submitSxsRating'])->name('sxs-rating');
+            Route::post('/rewrite', [CandidateRlhfQuestionController::class, 'submitRewrite'])->name('rewrite');
+            Route::post('/turn/advance', [CandidateRlhfQuestionController::class, 'advanceTurn'])->name('turn.advance');
+        });
+
+        // Anti-cheat / proctoring API — throttled per-candidate.
+        Route::prefix('api/quiz')->name('candidate.quiz.api.')->group(function () {
+            Route::post('/suspicious-event', [SuspiciousEventController::class, 'store'])
+                ->middleware('throttle:60,1')
+                ->name('suspicious-event');
+            Route::post('/camera-snapshot', [CameraSnapshotController::class, 'store'])
+                ->middleware('throttle:12,1')
+                ->name('camera-snapshot');
+        });
     });
 });
 

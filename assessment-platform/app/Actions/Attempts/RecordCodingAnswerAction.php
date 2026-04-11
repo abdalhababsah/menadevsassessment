@@ -3,6 +3,7 @@
 namespace App\Actions\Attempts;
 
 use App\Enums\AnswerStatus;
+use App\Jobs\Coding\RunCodingSubmissionJob;
 use App\Models\AttemptAnswer;
 use App\Models\AttemptCodingSubmission;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ final class RecordCodingAnswerAction
             throw new InvalidArgumentException('Answer has no linked question.');
         }
 
-        return DB::transaction(function () use ($answer, $language, $code, $timeSpentSeconds): AttemptAnswer {
+        $fresh = DB::transaction(function () use ($answer, $language, $code, $timeSpentSeconds): AttemptAnswer {
             /** @var AttemptCodingSubmission $submission */
             $submission = $answer->codingSubmission ?? new AttemptCodingSubmission([
                 'attempt_answer_id' => $answer->id,
@@ -43,5 +44,11 @@ final class RecordCodingAnswerAction
 
             return $answer->fresh(['codingSubmission.testResults']);
         });
+
+        if ($fresh->codingSubmission !== null) {
+            RunCodingSubmissionJob::dispatch($fresh->codingSubmission->id);
+        }
+
+        return $fresh;
     }
 }

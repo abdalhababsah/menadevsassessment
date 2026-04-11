@@ -11,17 +11,20 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * `php artisan migrate:fresh --seed` should produce a usable starting
+     * state: permission catalog, role templates, a super admin user, and a
+     * small demo quiz covering every question type.
      */
     public function run(): void
     {
         $this->call([
             SuperAdminSeeder::class,
+            QuizAuthorRoleSeeder::class,
+            ReviewerRoleSeeder::class,
+            ProctorRoleSeeder::class,
+            AuditorRoleSeeder::class,
+            DemoQuizSeeder::class,
         ]);
-
-        // Role-template seeders — run individually via:
-        //   php artisan db:seed --class=QuizAuthorRoleSeeder
-        //   php artisan db:seed --class=ReviewerRoleSeeder
-        //   php artisan db:seed --class=ProctorRoleSeeder
-        //   php artisan db:seed --class=AuditorRoleSeeder
     }
 }

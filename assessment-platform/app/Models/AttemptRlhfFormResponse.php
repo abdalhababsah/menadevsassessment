@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $rlhf_turn_id
+ * @property RlhfFormStage $stage
+ * @property string $field_key
+ * @property string $value
+ */
 class AttemptRlhfFormResponse extends Model
 {
     /** @use HasFactory<AttemptRlhfFormResponseFactory> */

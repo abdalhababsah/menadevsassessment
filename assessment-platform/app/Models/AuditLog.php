@@ -5,7 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int|null $user_id
+ * @property string $action
+ * @property string $auditable_type
+ * @property int $auditable_id
+ * @property array<string, mixed>|null $changes
+ * @property string|null $ip_address
+ * @property Carbon|null $created_at
+ * @property-read User|null $user
+ */
 class AuditLog extends Model
 {
     public $timestamps = false;

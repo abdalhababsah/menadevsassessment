@@ -4,12 +4,31 @@ namespace App\Models;
 
 use App\Enums\AnswerStatus;
 use Database\Factories\AttemptAnswerFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $quiz_attempt_id
+ * @property int $question_id
+ * @property int $question_version
+ * @property Carbon|null $answered_at
+ * @property int|null $time_spent_seconds
+ * @property string|null $auto_score
+ * @property string|null $reviewer_score
+ * @property AnswerStatus $status
+ * @property-read Question|null $question
+ * @property-read QuizAttempt $attempt
+ * @property-read Collection<int, AttemptAnswerSelection> $selections
+ * @property-read AttemptCodingSubmission|null $codingSubmission
+ * @property-read Collection<int, AttemptRlhfTurn> $rlhfTurns
+ * @property-read AttemptRlhfReview|null $rlhfReview
+ */
 class AttemptAnswer extends Model
 {
     /** @use HasFactory<AttemptAnswerFactory> */

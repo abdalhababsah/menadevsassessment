@@ -197,7 +197,7 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'default-supervisor' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
@@ -206,24 +206,90 @@ return [
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
-            'tries' => 1,
+            'tries' => 3,
             'timeout' => 60,
+            'nice' => 0,
+        ],
+
+        'rlhf-generation-supervisor' => [
+            'connection' => 'redis',
+            'queue' => ['rlhf-generation'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 5,
+            'timeout' => 90,
+            'nice' => 0,
+        ],
+
+        'coding-execution-supervisor' => [
+            'connection' => 'redis',
+            'queue' => ['coding-execution'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 3,
+            'timeout' => 60,
+            'nice' => 0,
+        ],
+
+        'notifications-supervisor' => [
+            'connection' => 'redis',
+            'queue' => ['notifications'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 3,
+            'timeout' => 30,
             'nice' => 0,
         ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
+            'default-supervisor' => [
                 'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'rlhf-generation-supervisor' => [
+                'maxProcesses' => 50,
+                'balanceMaxShift' => 5,
+                'balanceCooldown' => 3,
+            ],
+            'coding-execution-supervisor' => [
+                'maxProcesses' => 20,
+                'balanceMaxShift' => 2,
+                'balanceCooldown' => 3,
+            ],
+            'notifications-supervisor' => [
+                'maxProcesses' => 5,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
 
         'local' => [
-            'supervisor-1' => [
+            'default-supervisor' => [
                 'maxProcesses' => 3,
+            ],
+            'rlhf-generation-supervisor' => [
+                'maxProcesses' => 2,
+            ],
+            'coding-execution-supervisor' => [
+                'maxProcesses' => 2,
+            ],
+            'notifications-supervisor' => [
+                'maxProcesses' => 1,
             ],
         ],
     ],

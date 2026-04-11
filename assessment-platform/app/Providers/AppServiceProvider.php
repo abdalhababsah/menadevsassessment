@@ -8,7 +8,7 @@ use App\Contracts\Storage\MediaStorage;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use App\Services\AiProviders\Anthropic\AnthropicResponseGenerator;
-use App\Services\CodeRunners\SandboxedCodeRunner;
+use App\Services\CodeRunners\LocalStubCodeRunner;
 use App\Services\QuestionBank\QuestionVersioningService;
 use App\Services\Scoring\QuizScoringService;
 use App\Services\Storage\LocalMediaStorage;
@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(AiResponseGenerator::class, AnthropicResponseGenerator::class);
-        $this->app->bind(CodeRunner::class, SandboxedCodeRunner::class);
+        $this->app->bind(CodeRunner::class, LocalStubCodeRunner::class);
         $this->app->bind(MediaStorage::class, LocalMediaStorage::class);
 
         $this->app->singleton(QuestionVersioningService::class);
