@@ -1,5 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import CodingQuestionForm from '@/Components/QuestionBuilder/CodingQuestionForm';
+import CodingQuestionForm from '@/components/questionbuilder/codingquestionform';
 import { Head, Link } from '@inertiajs/react';
 
 export default function CreateCoding({ tags }: { tags: { id: number; name: string }[] }) {

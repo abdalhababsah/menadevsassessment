@@ -1,11 +1,11 @@
 import CandidateLayout from '@/Layouts/CandidateLayout';
-import { EvaluationStep } from '@/Components/Candidate/Rlhf/EvaluationStep';
-import { FormStep } from '@/Components/Candidate/Rlhf/FormStep';
-import { PromptInputStep } from '@/Components/Candidate/Rlhf/PromptInputStep';
-import { ResponsePairStep } from '@/Components/Candidate/Rlhf/ResponsePairStep';
-import { RewriteStep } from '@/Components/Candidate/Rlhf/RewriteStep';
-import { SxsRatingStep } from '@/Components/Candidate/Rlhf/SxsRatingStep';
-import { TurnContainer } from '@/Components/Candidate/Rlhf/TurnContainer';
+import { EvaluationStep } from '@/components/candidate/rlhf/evaluationstep';
+import { FormStep } from '@/components/candidate/rlhf/formstep';
+import { PromptInputStep } from '@/components/candidate/rlhf/promptinputstep';
+import { ResponsePairStep } from '@/components/candidate/rlhf/responsepairstep';
+import { RewriteStep } from '@/components/candidate/rlhf/rewritestep';
+import { SxsRatingStep } from '@/components/candidate/rlhf/sxsratingstep';
+import { TurnContainer } from '@/components/candidate/rlhf/turncontainer';
 import { useGenerationPolling } from '@/Hooks/useGenerationPolling';
 import { ResponseSide, RlhfState } from '@/types/rlhf';
 import axios from 'axios';
@@ -173,7 +173,7 @@ export default function Runner({ state }: Props) {
                                 initialValues={currentTurn.form_responses.pre_prompt}
                                 counter={currentTurn.counters.pre_prompt}
                                 busy={busyKey === 'pre_prompt'}
-                                onSubmit={(values) => send('pre_prompt', '/quiz/rlhf/form', {
+                                onSubmit={(values: any) => send('pre_prompt', '/quiz/rlhf/form', {
                                     stage: 'pre_prompt',
                                     responses: values,
                                 })}
@@ -186,7 +186,7 @@ export default function Runner({ state }: Props) {
                                 guidelines={runtimeState.question.guidelines_markdown}
                                 candidateInputMode={runtimeState.question.candidate_input_mode}
                                 busy={busyKey === 'prompt'}
-                                onSubmit={(input) => send('prompt', '/quiz/rlhf/prompt-input', { input })}
+                                onSubmit={(input: any) => send('prompt', '/quiz/rlhf/prompt-input', { input })}
                             />
                         )}
 
@@ -200,7 +200,7 @@ export default function Runner({ state }: Props) {
                                 initialValues={currentTurn.form_responses.post_prompt}
                                 counter={currentTurn.counters.post_prompt}
                                 busy={busyKey === 'post_prompt'}
-                                onSubmit={(values) => send('post_prompt', '/quiz/rlhf/form', {
+                                onSubmit={(values: any) => send('post_prompt', '/quiz/rlhf/form', {
                                     stage: 'post_prompt',
                                     responses: values,
                                 })}
@@ -215,7 +215,7 @@ export default function Runner({ state }: Props) {
                                 initialValues={currentTurn.evaluations.a}
                                 counter={currentTurn.counters.evaluate_a}
                                 busy={busyKey === 'evaluate_a'}
-                                onSubmit={(evaluations) => send('evaluate_a', '/quiz/rlhf/evaluation', {
+                                onSubmit={(evaluations: any) => send('evaluate_a', '/quiz/rlhf/evaluation', {
                                     response_side: 'a',
                                     evaluations,
                                 })}
@@ -230,7 +230,7 @@ export default function Runner({ state }: Props) {
                                 initialValues={currentTurn.evaluations.b}
                                 counter={currentTurn.counters.evaluate_b}
                                 busy={busyKey === 'evaluate_b'}
-                                onSubmit={(evaluations) => send('evaluate_b', '/quiz/rlhf/evaluation', {
+                                onSubmit={(evaluations: any) => send('evaluate_b', '/quiz/rlhf/evaluation', {
                                     response_side: 'b',
                                     evaluations,
                                 })}
@@ -244,7 +244,7 @@ export default function Runner({ state }: Props) {
                                 initialRating={currentTurn.sxs_rating}
                                 initialJustification={currentTurn.sxs_justification}
                                 busy={busyKey === 'sxs'}
-                                onSubmit={(rating, justification) => send('sxs', '/quiz/rlhf/sxs-rating', {
+                                onSubmit={(rating: any, justification: any) => send('sxs', '/quiz/rlhf/sxs-rating', {
                                     rating,
                                     justification,
                                 })}
@@ -258,7 +258,7 @@ export default function Runner({ state }: Props) {
                                 initialRewrite={currentTurn.selected_response_rewrite ?? ''}
                                 guidelines={runtimeState.question.guidelines_markdown}
                                 busy={busyKey === 'rewrite'}
-                                onSubmit={(rewrite) => send('rewrite', '/quiz/rlhf/rewrite', { rewrite })}
+                                onSubmit={(rewrite: any) => send('rewrite', '/quiz/rlhf/rewrite', { rewrite })}
                             />
                         )}
 
@@ -270,7 +270,7 @@ export default function Runner({ state }: Props) {
                                 initialValues={currentTurn.form_responses.post_rewrite}
                                 counter={currentTurn.counters.post_rewrite}
                                 busy={busyKey === 'post_rewrite'}
-                                onSubmit={(values) => send('post_rewrite', '/quiz/rlhf/form', {
+                                onSubmit={(values: any) => send('post_rewrite', '/quiz/rlhf/form', {
                                     stage: 'post_rewrite',
                                     responses: values,
                                 })}

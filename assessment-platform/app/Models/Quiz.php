@@ -83,6 +83,14 @@ class Quiz extends Model
     }
 
     /**
+     * @return HasMany<QuizAttempt, $this>
+     */
+    public function attempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    /**
      * @param  Builder<self>  $query
      * @return Builder<self>
      */

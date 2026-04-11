@@ -1,5 +1,16 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface QuizRow {
     id: number;
@@ -32,9 +43,6 @@ export default function Index({ quizzes }: { quizzes: QuizRow[] }) {
     };
 
     const handleDelete = (quiz: QuizRow) => {
-        if (!confirm(`Delete "${quiz.title}"? This cannot be undone.`)) {
-            return;
-        }
         router.delete(route('admin.quizzes.destroy', quiz.id));
     };
 
@@ -93,20 +101,42 @@ export default function Index({ quizzes }: { quizzes: QuizRow[] }) {
                                             Edit
                                         </Link>
                                         {quiz.status === 'draft' ? (
-                                            <button onClick={() => handlePublish(quiz)} className="ml-3 text-green-600 hover:text-green-900">
+                                            <button onClick={() => handlePublish(quiz)} className="ml-3 text-green-600 hover:text-green-900 cursor-pointer">
                                                 Publish
                                             </button>
                                         ) : (
-                                            <button onClick={() => handleUnpublish(quiz)} className="ml-3 text-amber-600 hover:text-amber-900">
+                                            <button onClick={() => handleUnpublish(quiz)} className="ml-3 text-amber-600 hover:text-amber-900 cursor-pointer">
                                                 Unpublish
                                             </button>
                                         )}
-                                        <button onClick={() => handleDuplicate(quiz)} className="ml-3 text-gray-600 hover:text-gray-900">
+                                        <button onClick={() => handleDuplicate(quiz)} className="ml-3 text-gray-600 hover:text-gray-900 cursor-pointer">
                                             Duplicate
                                         </button>
-                                        <button onClick={() => handleDelete(quiz)} className="ml-3 text-red-600 hover:text-red-900">
-                                            Delete
-                                        </button>
+                                        
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <button className="ml-3 text-red-600 hover:text-red-900 cursor-pointer">
+                                                    Delete
+                                                </button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete Quiz?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to delete "{quiz.title}"? This action cannot be undone and all associated data will be removed.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction 
+                                                        variant="destructive"
+                                                        onClick={() => handleDelete(quiz)}
+                                                    >
+                                                        Delete Quiz
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </td>
                                 </tr>
                             ))
@@ -114,6 +144,7 @@ export default function Index({ quizzes }: { quizzes: QuizRow[] }) {
                     </tbody>
                 </table>
             </div>
+
         </AdminLayout>
     );
 }

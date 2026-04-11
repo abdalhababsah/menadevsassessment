@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import RlhfQuestionForm from '@/Components/RlhfBuilder/RlhfQuestionForm';
-import { CriterionInput } from '@/Components/RlhfBuilder/CriterionEditor';
-import { FormFieldInput } from '@/Components/RlhfBuilder/FormFieldBuilder';
+import RlhfQuestionForm from '@/components/rlhfbuilder/rlhfquestionform';
+import { CriterionInput } from '@/components/rlhfbuilder/criterioneditor';
+import { FormFieldInput } from '@/components/rlhfbuilder/formfieldbuilder';
 import { Head, Link } from '@inertiajs/react';
 
 interface QuestionData {

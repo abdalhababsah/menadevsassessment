@@ -1,6 +1,18 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface InvitationRow {
     id: number;
@@ -45,18 +57,16 @@ export default function Invitations({
             await navigator.clipboard.writeText(invitation.public_url);
             setCopiedId(invitation.id);
             setTimeout(() => setCopiedId(null), 1500);
+            toast.success("Link copied to clipboard");
         } catch {
-            // Fallback: select prompt
-            window.prompt('Copy this link', invitation.public_url);
+            toast.error("Failed to copy link. Please copy it manually.");
         }
     };
 
     const revoke = (invitation: InvitationRow) => {
-        if (!confirm('Revoke this invitation? Candidates who already started cannot be undone, but new uses will be blocked.')) {
-            return;
-        }
         router.delete(route('admin.quizzes.invitations.destroy', [quiz.id, invitation.id]), {
             preserveScroll: true,
+            onSuccess: () => toast.success("Invitation revoked"),
         });
     };
 
@@ -162,13 +172,33 @@ export default function Invitations({
                                         {copiedId === invitation.id ? 'Copied!' : 'Copy link'}
                                     </button>
                                     {invitation.is_usable && (
-                                        <button
-                                            type="button"
-                                            onClick={() => revoke(invitation)}
-                                            className="ml-3 text-red-600 hover:text-red-900"
-                                        >
-                                            Revoke
-                                        </button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    className="ml-3 text-red-600 hover:text-red-900 cursor-pointer"
+                                                >
+                                                    Revoke
+                                                </button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Revoke Invitation?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to revoke this invitation? Candidates who have already started their assessment will still be able to complete it, but new access attempts will be blocked.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction 
+                                                        variant="destructive"
+                                                        onClick={() => revoke(invitation)}
+                                                    >
+                                                        Revoke Invitation
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     )}
                                 </td>
                             </tr>

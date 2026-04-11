@@ -40,6 +40,7 @@ final class StoreRlhfQuestionRequest extends FormRequest
             'time_limit_seconds' => ['nullable', 'integer', 'min:1'],
             'tags' => ['array'],
             'tags.*' => ['integer', 'exists:tags,id'],
+            'quiz_section_id' => ['nullable', 'integer', 'exists:quiz_sections,id'],
 
             'number_of_turns' => ['required', 'integer', 'between:1,10'],
             'candidate_input_mode' => ['required', Rule::in(['text', 'voice', 'both'])],

@@ -1,5 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import SelectQuestionForm from '@/Components/QuestionBuilder/SelectQuestionForm';
+import SelectQuestionForm from '@/components/questionbuilder/selectquestionform';
 import { Head, Link } from '@inertiajs/react';
 
 export default function CreateSingleSelect({ tags }: { tags: { id: number; name: string }[] }) {

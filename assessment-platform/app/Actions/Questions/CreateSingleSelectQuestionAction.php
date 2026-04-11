@@ -2,10 +2,12 @@
 
 namespace App\Actions\Questions;
 
+use App\Actions\Quizzes\AttachQuestionToSectionAction;
 use App\Data\Questions\SingleSelectQuestionData;
 use App\Enums\QuestionDifficulty;
 use App\Enums\QuestionType;
 use App\Models\Question;
+use App\Models\QuizSection;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
@@ -15,11 +17,20 @@ final class CreateSingleSelectQuestionAction
 {
     public function __construct(
         private AuditLogger $audit,
+        private AttachQuestionToSectionAction $attachAction,
     ) {}
 
-    public function handle(SingleSelectQuestionData $data, User $creator): Question
-    {
-        return DB::transaction(function () use ($data, $creator): Question {
+    /**
+     * Create a single-select question. When `$quizSectionId` is provided the
+     * question is also attached to that section inside the same transaction,
+     * so the bank-create and inline-builder flows share one code path.
+     */
+    public function handle(
+        SingleSelectQuestionData $data,
+        User $creator,
+        ?int $quizSectionId = null,
+    ): Question {
+        return DB::transaction(function () use ($data, $creator, $quizSectionId): Question {
             $question = Question::create([
                 'type' => QuestionType::SingleSelect,
                 'stem' => $data->stem,
@@ -45,6 +56,11 @@ final class CreateSingleSelectQuestionAction
                 'type' => 'single_select',
                 'stem' => Str::limit($data->stem, 100),
             ]);
+
+            if ($quizSectionId !== null) {
+                $section = QuizSection::query()->findOrFail($quizSectionId);
+                $this->attachAction->handle($section, $question);
+            }
 
             return $question;
         });

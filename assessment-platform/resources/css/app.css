@@ -1,3 +1,77 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: "Instrument Serif", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-verdant-50: oklch(0.98 0.01 135);
+  --color-verdant-100: oklch(0.95 0.02 135);
+  --color-verdant-200: oklch(0.90 0.04 135);
+  --color-verdant-300: oklch(0.82 0.06 135);
+  --color-verdant-400: oklch(0.70 0.08 135);
+  --color-verdant-500: oklch(0.58 0.09 135);
+  --color-verdant-600: oklch(0.46 0.08 135);
+  --color-verdant-700: oklch(0.34 0.07 135);
+  --color-verdant-800: oklch(0.22 0.05 135);
+  --color-verdant-900: oklch(0.12 0.03 135);
+  --color-verdant-950: oklch(0.06 0.02 135);
+
+  --color-stone-50: oklch(0.99 0.005 135);
+  --color-stone-100: oklch(0.97 0.01 135);
+  --color-stone-200: oklch(0.92 0.01 135);
+  --color-stone-300: oklch(0.85 0.01 135);
+  --color-stone-400: oklch(0.70 0.01 135);
+  --color-stone-500: oklch(0.55 0.01 135);
+  --color-stone-600: oklch(0.40 0.01 135);
+  --color-stone-700: oklch(0.28 0.01 135);
+  --color-stone-800: oklch(0.18 0.01 135);
+  --color-stone-900: oklch(0.12 0.01 135);
+  --color-stone-950: oklch(0.08 0.01 135);
+
+  --color-background: var(--color-stone-50);
+  --color-foreground: var(--color-stone-950);
+  
+  --color-primary: var(--color-verdant-600);
+  --color-primary-foreground: var(--color-verdant-50);
+  
+  --color-secondary: oklch(0.55 0.05 120);
+  --color-secondary-foreground: var(--color-stone-950);
+  
+  --color-muted: var(--color-stone-100);
+  --color-muted-foreground: var(--color-stone-500);
+  
+  --color-accent: var(--color-verdant-100);
+  --color-accent-foreground: var(--color-verdant-900);
+  
+  --color-destructive: oklch(0.55 0.15 25);
+  --color-destructive-foreground: oklch(0.98 0.01 25);
+  
+  --color-border: var(--color-stone-200);
+  --color-input: var(--color-stone-200);
+  --color-ring: var(--color-verdant-500);
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-pill: 9999px;
+}
+
+@layer base {
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

@@ -23,11 +23,9 @@ use App\Models\Quiz;
 use App\Models\QuizSection;
 use App\Models\QuizSectionQuestion;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuizSectionQuestionController extends Controller
@@ -139,17 +137,14 @@ class QuizSectionQuestionController extends Controller
         Quiz $quiz,
         QuizSection $section,
         CreateSingleSelectQuestionAction $createAction,
-        AttachQuestionToSectionAction $attachAction,
     ): RedirectResponse {
         abort_unless($section->quiz_id === $quiz->id, 404);
 
         /** @var User $user */
         $user = $request->user();
 
-        DB::transaction(function () use ($request, $section, $createAction, $attachAction, $user): void {
-            $question = $createAction->handle($request->toData(), $user);
-            $attachAction->handle($section, $question);
-        });
+        // The action handles attach-to-section atomically when given a section ID.
+        $createAction->handle($request->toData(), $user, $section->id);
 
         return back()->with('success', 'Question created and added to section.');
     }
@@ -159,17 +154,13 @@ class QuizSectionQuestionController extends Controller
         Quiz $quiz,
         QuizSection $section,
         CreateMultiSelectQuestionAction $createAction,
-        AttachQuestionToSectionAction $attachAction,
     ): RedirectResponse {
         abort_unless($section->quiz_id === $quiz->id, 404);
 
         /** @var User $user */
         $user = $request->user();
 
-        DB::transaction(function () use ($request, $section, $createAction, $attachAction, $user): void {
-            $question = $createAction->handle($request->toData(), $user);
-            $attachAction->handle($section, $question);
-        });
+        $createAction->handle($request->toData(), $user, $section->id);
 
         return back()->with('success', 'Question created and added to section.');
     }
@@ -179,17 +170,13 @@ class QuizSectionQuestionController extends Controller
         Quiz $quiz,
         QuizSection $section,
         CreateCodingQuestionAction $createAction,
-        AttachQuestionToSectionAction $attachAction,
     ): RedirectResponse {
         abort_unless($section->quiz_id === $quiz->id, 404);
 
         /** @var User $user */
         $user = $request->user();
 
-        DB::transaction(function () use ($request, $section, $createAction, $attachAction, $user): void {
-            $question = $createAction->handle($request->toData(), $user);
-            $attachAction->handle($section, $question);
-        });
+        $createAction->handle($request->toData(), $user, $section->id);
 
         return back()->with('success', 'Question created and added to section.');
     }
@@ -199,17 +186,13 @@ class QuizSectionQuestionController extends Controller
         Quiz $quiz,
         QuizSection $section,
         CreateRlhfQuestionAction $createAction,
-        AttachQuestionToSectionAction $attachAction,
     ): RedirectResponse {
         abort_unless($section->quiz_id === $quiz->id, 404);
 
         /** @var User $user */
         $user = $request->user();
 
-        DB::transaction(function () use ($request, $section, $createAction, $attachAction, $user): void {
-            $question = $createAction->handle($request->toData(), $user);
-            $attachAction->handle($section, $question);
-        });
+        $createAction->handle($request->toData(), $user, $section->id);
 
         return back()->with('success', 'Question created and added to section.');
     }

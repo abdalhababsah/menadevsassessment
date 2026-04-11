@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\CandidateController;
 use App\Http\Controllers\Admin\CodingReviewController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuizController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\QuizSectionQuestionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\RlhfReviewController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CameraSnapshotController;
 use App\Http\Controllers\Api\SuspiciousEventController;
@@ -34,9 +36,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'active'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -50,6 +50,21 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('can:users.view')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
+    });
+
+    Route::middleware('can:candidate.view')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('candidates', [CandidateController::class, 'index'])->name('candidates.index');
+        Route::get('candidates/export', [CandidateController::class, 'export'])
+            ->middleware('can:candidate.export')
+            ->name('candidates.export');
+        Route::delete('candidates/{candidate}', [CandidateController::class, 'destroy'])
+            ->middleware('can:candidate.delete')
+            ->name('candidates.destroy');
+    });
+
+    Route::middleware('can:system.settings')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
     });
 
     Route::middleware('can:quiz.view')->prefix('admin')->name('admin.')->group(function () {
@@ -131,6 +146,13 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::middleware('can:questionbank.view')->prefix('admin')->name('admin.')->group(function () {
         Route::get('questions', [QuestionController::class, 'index'])->name('questions.index');
+        Route::get('questions/{question}/api', [QuestionController::class, 'apiShow'])->name('questions.api-show');
+        Route::get('questions/export', [QuestionController::class, 'export'])
+            ->middleware('can:questionbank.export')
+            ->name('questions.export');
+        Route::post('questions/import', [QuestionController::class, 'import'])
+            ->middleware('can:questionbank.import')
+            ->name('questions.import');
         Route::get('questions/create/{type}', [QuestionController::class, 'create'])->name('questions.create');
         Route::get('questions/{question}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
 
@@ -143,6 +165,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::put('questions/{question}/multi-select', [QuestionController::class, 'updateMultiSelect'])->name('questions.update.multi-select');
         Route::put('questions/{question}/coding', [QuestionController::class, 'updateCoding'])->name('questions.update.coding');
         Route::put('questions/{question}/rlhf', [QuestionController::class, 'updateRlhf'])->name('questions.update.rlhf');
+        Route::post('questions/{question}/duplicate', [QuestionController::class, 'duplicate'])->name('questions.duplicate');
+        Route::delete('questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
     });
 });
 

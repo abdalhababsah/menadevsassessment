@@ -1,8 +1,8 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import InputError from '@/components/inputerror';
+import InputLabel from '@/components/inputlabel';
+import PrimaryButton from '@/components/primarybutton';
+import TextInput from '@/components/textinput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 

@@ -1,4 +1,6 @@
 import { PropsWithChildren } from 'react';
+import { Toaster } from '@/components/ui/sonner';
+import FlashNotifications from '@/components/FlashNotifications';
 
 export default function CandidateLayout({ children }: PropsWithChildren) {
     return (
@@ -16,6 +18,8 @@ export default function CandidateLayout({ children }: PropsWithChildren) {
                     Powered by the Assessment Platform
                 </p>
             </footer>
+            <Toaster position="bottom-right" theme="light" />
+            <FlashNotifications />
         </div>
     );
 }

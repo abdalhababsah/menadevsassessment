@@ -1,6 +1,6 @@
-import { CodingQuestion } from '@/Components/Candidate/QuestionTypes/CodingQuestion';
-import { MultiSelectQuestion } from '@/Components/Candidate/QuestionTypes/MultiSelectQuestion';
-import { SingleSelectQuestion } from '@/Components/Candidate/QuestionTypes/SingleSelectQuestion';
+import { CodingQuestion } from '@/components/candidate/questiontypes/codingquestion';
+import { MultiSelectQuestion } from '@/components/candidate/questiontypes/multiselectquestion';
+import { SingleSelectQuestion } from '@/components/candidate/questiontypes/singleselectquestion';
 import { useAutoSave } from '@/Hooks/useAutoSave';
 import { useQuizTimer } from '@/Hooks/useQuizTimer';
 import CandidateLayout from '@/Layouts/CandidateLayout';
@@ -361,7 +361,7 @@ export default function Runner() {
                             instructions={state.question.instructions}
                             options={state.question.options}
                             selectedOptionId={state.answer?.selected_option_ids?.[0]}
-                            onChange={(optionId) => persistSelections([optionId])}
+                            onChange={(optionId: any) => persistSelections([optionId])}
                         />
                     )}
 

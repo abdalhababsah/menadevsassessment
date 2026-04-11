@@ -2,6 +2,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout';
 import axios from 'axios';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
+import { toast } from "sonner";
 
 interface Props {
     candidate: {
@@ -40,9 +41,10 @@ export default function PreQuiz({ candidate, quiz, invitation_token }: Props) {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             stream.getTracks().forEach((t) => t.stop());
             setCameraGranted(true);
+            toast.success("Camera access granted");
         } catch {
             setCameraGranted(false);
-            alert('Camera access is required to take this assessment.');
+            toast.error("Camera access is required to take this assessment.");
         } finally {
             setRequestingCamera(false);
         }
@@ -56,9 +58,10 @@ export default function PreQuiz({ candidate, quiz, invitation_token }: Props) {
             window.location.assign(data.run_url);
         } catch {
             setStarting(false);
-            alert('The assessment could not be started. Refresh the page and try again.');
+            toast.error("The assessment could not be started. Refresh the page and try again.");
         }
     };
+
 
     const canStart = cameraGranted;
 

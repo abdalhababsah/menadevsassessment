@@ -1,10 +1,21 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import InputError from '@/components/inputerror';
+import InputLabel from '@/components/inputlabel';
+import PrimaryButton from '@/components/primarybutton';
+import TextInput from '@/components/textinput';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface UserData {
     id: number;
@@ -34,7 +45,6 @@ export default function Edit({ user, roles }: { user: UserData; roles: string[] 
     };
 
     const handleDeactivate = () => {
-        if (!confirm(`Deactivate ${user.name}?`)) return;
         router.delete(route('admin.users.destroy', user.id));
     };
 
@@ -85,16 +95,37 @@ export default function Edit({ user, roles }: { user: UserData; roles: string[] 
                     <Link href={route('admin.users.index')} className="text-sm text-gray-600 hover:text-gray-900">Cancel</Link>
 
                     {!user.is_super_admin && user.is_active && (
-                        <button
-                            type="button"
-                            onClick={handleDeactivate}
-                            className="ml-auto text-sm font-medium text-red-600 hover:text-red-700"
-                        >
-                            Deactivate User
-                        </button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="ml-auto text-sm font-medium text-red-600 hover:text-red-700 cursor-pointer"
+                                >
+                                    Deactivate User
+                                </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Deactivate User?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Are you sure you want to deactivate {user.name}? This user will no longer be able to log in to the system.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        variant="destructive"
+                                        onClick={handleDeactivate}
+                                    >
+                                        Deactivate User
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     )}
                 </div>
             </form>
         </AdminLayout>
     );
 }
+

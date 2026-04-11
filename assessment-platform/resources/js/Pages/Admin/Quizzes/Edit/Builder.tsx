@@ -1,6 +1,17 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useState, FormEventHandler } from 'react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface QuestionPreview {
     type: string;
@@ -95,14 +106,12 @@ export default function Builder({
     };
 
     const deleteSection = (sectionId: number) => {
-        if (!confirm('Delete this section and all its questions?')) return;
         router.delete(route('admin.quizzes.sections.destroy', [quiz.id, sectionId]), {
             preserveScroll: true,
         });
     };
 
     const detachQuestion = (sectionId: number, sectionQuestionId: number) => {
-        if (!confirm('Remove this question from the section?')) return;
         router.delete(route('admin.quizzes.sections.questions.detach', [quiz.id, sectionId, sectionQuestionId]), {
             preserveScroll: true,
         });
@@ -197,15 +206,40 @@ export default function Builder({
                                             <button
                                                 type="button"
                                                 onClick={(e) => { e.stopPropagation(); setEditingSection(section); }}
-                                                className="px-1 text-indigo-600 hover:text-indigo-800"
+                                                className="px-1 text-indigo-600 hover:text-indigo-800 cursor-pointer"
                                                 title="Edit"
                                             >✎</button>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
-                                                className="px-1 text-red-500 hover:text-red-700"
-                                                title="Delete"
-                                            >×</button>
+
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="px-1 text-red-500 hover:text-red-700 cursor-pointer"
+                                                        title="Delete"
+                                                    >×</button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete Section?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to delete "{section.title}"? This will also remove all questions within this section.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction 
+                                                            variant="destructive"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                deleteSection(section.id);
+                                                            }}
+                                                        >
+                                                            Delete Section
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </button>
                                 </li>
@@ -274,12 +308,32 @@ export default function Builder({
                                                     {sq.time_limit_override_seconds && ` · Time: ${sq.time_limit_override_seconds}s`}
                                                 </div>
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => detachQuestion(activeSection.id, sq.id)}
-                                                className="text-red-500 hover:text-red-700"
-                                                title="Remove"
-                                            >×</button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button
+                                                        type="button"
+                                                        className="text-red-500 hover:text-red-700 cursor-pointer"
+                                                        title="Remove"
+                                                    >×</button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Remove Question?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to remove this question from the section? The question will remain in the library.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction 
+                                                            variant="destructive"
+                                                            onClick={() => detachQuestion(activeSection.id, sq.id)}
+                                                        >
+                                                            Remove Question
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </li>
                                 ))}

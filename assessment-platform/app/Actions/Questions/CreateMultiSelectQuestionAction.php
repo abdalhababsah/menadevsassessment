@@ -2,10 +2,12 @@
 
 namespace App\Actions\Questions;
 
+use App\Actions\Quizzes\AttachQuestionToSectionAction;
 use App\Data\Questions\MultiSelectQuestionData;
 use App\Enums\QuestionDifficulty;
 use App\Enums\QuestionType;
 use App\Models\Question;
+use App\Models\QuizSection;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
@@ -15,11 +17,19 @@ final class CreateMultiSelectQuestionAction
 {
     public function __construct(
         private AuditLogger $audit,
+        private AttachQuestionToSectionAction $attachAction,
     ) {}
 
-    public function handle(MultiSelectQuestionData $data, User $creator): Question
-    {
-        return DB::transaction(function () use ($data, $creator): Question {
+    /**
+     * Create a multi-select question. When `$quizSectionId` is provided the
+     * question is also attached to that section inside the same transaction.
+     */
+    public function handle(
+        MultiSelectQuestionData $data,
+        User $creator,
+        ?int $quizSectionId = null,
+    ): Question {
+        return DB::transaction(function () use ($data, $creator, $quizSectionId): Question {
             $question = Question::create([
                 'type' => QuestionType::MultiSelect,
                 'stem' => $data->stem,
@@ -45,6 +55,11 @@ final class CreateMultiSelectQuestionAction
                 'type' => 'multi_select',
                 'stem' => Str::limit($data->stem, 100),
             ]);
+
+            if ($quizSectionId !== null) {
+                $section = QuizSection::query()->findOrFail($quizSectionId);
+                $this->attachAction->handle($section, $question);
+            }
 
             return $question;
         });

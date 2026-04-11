@@ -30,6 +30,7 @@ final class StoreMultiSelectQuestionRequest extends FormRequest
             'time_limit_seconds' => ['nullable', 'integer', 'min:1'],
             'tags' => ['array'],
             'tags.*' => ['integer', 'exists:tags,id'],
+            'quiz_section_id' => ['nullable', 'integer', 'exists:quiz_sections,id'],
             'options' => ['required', 'array', 'min:2'],
             'options.*.content' => ['required', 'string'],
             'options.*.content_type' => ['required', Rule::in(['text', 'image', 'audio'])],

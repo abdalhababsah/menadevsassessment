@@ -1,6 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import CodingQuestionForm from '@/Components/QuestionBuilder/CodingQuestionForm';
-import { CodingTestCaseInput } from '@/Components/QuestionBuilder/CodingConfig';
+import CodingQuestionForm from '@/components/questionbuilder/codingquestionform';
+import { CodingTestCaseInput } from '@/components/questionbuilder/codingconfig';
 import { Head, Link } from '@inertiajs/react';
 
 interface QuestionData {

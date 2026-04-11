@@ -1,67 +1,31 @@
-import { ChangeEvent } from 'react';
-
-interface PermissionPickerProps {
-    permissionGroups: Record<string, string[]>;
-    selected: string[];
-    onChange: (permissions: string[]) => void;
-}
-
-export default function PermissionPicker({ permissionGroups, selected, onChange }: PermissionPickerProps) {
-    const toggle = (permission: string) => {
-        if (selected.includes(permission)) {
-            onChange(selected.filter(p => p !== permission));
-        } else {
-            onChange([...selected, permission]);
-        }
-    };
-
-    const toggleGroup = (groupPermissions: string[]) => {
-        const allSelected = groupPermissions.every(p => selected.includes(p));
-        if (allSelected) {
-            onChange(selected.filter(p => !groupPermissions.includes(p)));
-        } else {
-            const newSelected = new Set([...selected, ...groupPermissions]);
-            onChange(Array.from(newSelected));
-        }
-    };
-
-    return (
-        <div className="space-y-4">
-            {Object.entries(permissionGroups).map(([group, permissions]) => {
-                const allSelected = permissions.every(p => selected.includes(p));
-                const someSelected = permissions.some(p => selected.includes(p));
-
-                return (
-                    <div key={group} className="rounded-lg border border-gray-200 p-4">
-                        <label className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={allSelected}
-                                ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                                onChange={() => toggleGroup(permissions)}
-                                className="rounded border-gray-300 text-indigo-600"
-                            />
-                            <span className="text-sm font-semibold text-gray-900">{group}</span>
-                            <span className="text-xs text-gray-500">
-                                ({permissions.filter(p => selected.includes(p)).length}/{permissions.length})
-                            </span>
-                        </label>
-                        <div className="mt-2 ml-6 grid grid-cols-2 gap-2">
-                            {permissions.map((permission) => (
-                                <label key={permission} className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={selected.includes(permission)}
-                                        onChange={() => toggle(permission)}
-                                        className="rounded border-gray-300 text-indigo-600"
-                                    />
-                                    <span className="text-sm text-gray-700">{permission}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                );
-            })}
+import { Stack } from "./verdant/layout/stack";
+import { Checkbox } from "./ui/checkbox";
+export default function PermissionPicker({ permissions, selected, onChange }: any) {
+  const toggle = (id: number) => {
+    const next = selected.includes(id) ? selected.filter((s: any) => s !== id) : [...selected, id];
+    onChange(next);
+  };
+  const groups = permissions.reduce((acc: any, p: any) => {
+    const groupName = p.name.split('.')[0] || 'other';
+    if (!acc[groupName]) acc[groupName] = [];
+    acc[groupName].push(p);
+    return acc;
+  }, {});
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.entries(groups).map(([name, group]: [string, any]) => (
+        <div key={name} className="p-4 border rounded-xl bg-stone-50/50">
+          <h4 className="font-display text-lg capitalize mb-3">{name}</h4>
+          <Stack gap="snug">
+            {group.map((p: any) => (
+              <label key={p.id} className="flex items-center gap-2 cursor-pointer">
+                <Checkbox checked={selected.includes(p.id)} onCheckedChange={() => toggle(p.id)} />
+                <span className="text-sm text-stone-600">{p.name.split('.').slice(1).join(' ') || p.name}</span>
+              </label>
+            ))}
+          </Stack>
         </div>
-    );
+      ))}
+    </div>
+  );
 }

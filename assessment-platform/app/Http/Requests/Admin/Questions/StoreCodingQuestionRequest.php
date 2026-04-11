@@ -29,6 +29,7 @@ final class StoreCodingQuestionRequest extends FormRequest
             'time_limit_seconds' => ['nullable', 'integer', 'min:1'],
             'tags' => ['array'],
             'tags.*' => ['integer', 'exists:tags,id'],
+            'quiz_section_id' => ['nullable', 'integer', 'exists:quiz_sections,id'],
             'allowed_languages' => ['required', 'array', 'min:1'],
             'allowed_languages.*' => ['required', 'string'],
             'starter_code' => ['nullable', 'array'],

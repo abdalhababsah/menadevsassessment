@@ -142,6 +142,32 @@ class Question extends Model
     }
 
     /**
+     * @return BelongsToMany<QuizSection, $this>
+     */
+    public function sections(): BelongsToMany
+    {
+        return $this->belongsToMany(QuizSection::class, 'quiz_section_questions')
+            ->using(QuizSectionQuestion::class)
+            ->withPivot(['question_version', 'points_override', 'time_limit_override_seconds', 'position']);
+    }
+
+    /**
+     * @return BelongsToMany<Quiz, $this>
+     */
+    public function quizzes(): BelongsToMany
+    {
+        // We go from Question -> quiz_section_questions -> quiz_sections -> quizzes
+        // The belongsToMany already starts at the local model and joins the target model (Quiz).
+        // We just need to bridge the gap through the pivot table and the intermediate sections table.
+        return $this->belongsToMany(Quiz::class, 'quiz_section_questions', 'question_id', 'id', 'id', 'id')
+            ->join('quiz_sections', 'quiz_section_questions.quiz_section_id', '=', 'quiz_sections.id')
+            // Don't join 'quizzes' again; BelongsToMany handles it. 
+            // Instead, we ensure the join condition links quiz_sections to the already-joined quizzes table.
+            ->whereColumn('quiz_sections.quiz_id', 'quizzes.id')
+            ->distinct();
+    }
+
+    /**
      * @param  Builder<self>  $query
      * @return Builder<self>
      */

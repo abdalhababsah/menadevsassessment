@@ -1,6 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import SelectQuestionForm from '@/Components/QuestionBuilder/SelectQuestionForm';
-import { QuestionOptionInput } from '@/Components/QuestionBuilder/OptionsBuilder';
+import SelectQuestionForm from '@/components/questionbuilder/selectquestionform';
+import { type QuestionOption as QuestionOptionInput } from '@/components/questionbuilder/optionsbuilder';
 import { Head, Link } from '@inertiajs/react';
 
 interface QuestionData {

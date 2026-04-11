@@ -2,12 +2,14 @@
 
 namespace App\Actions\Rlhf;
 
+use App\Actions\Quizzes\AttachQuestionToSectionAction;
 use App\Data\Rlhf\RlhfCriterionData;
 use App\Data\Rlhf\RlhfFormFieldData;
 use App\Data\Rlhf\RlhfQuestionData;
 use App\Enums\QuestionDifficulty;
 use App\Enums\QuestionType;
 use App\Models\Question;
+use App\Models\QuizSection;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +19,19 @@ final class CreateRlhfQuestionAction
 {
     public function __construct(
         private AuditLogger $audit,
+        private AttachQuestionToSectionAction $attachAction,
     ) {}
 
-    public function handle(RlhfQuestionData $data, User $creator): Question
-    {
-        return DB::transaction(function () use ($data, $creator): Question {
+    /**
+     * Create an RLHF question. When `$quizSectionId` is provided the
+     * question is also attached to that section inside the same transaction.
+     */
+    public function handle(
+        RlhfQuestionData $data,
+        User $creator,
+        ?int $quizSectionId = null,
+    ): Question {
+        return DB::transaction(function () use ($data, $creator, $quizSectionId): Question {
             $question = Question::create([
                 'type' => QuestionType::Rlhf,
                 'stem' => $data->stem,
@@ -60,6 +70,11 @@ final class CreateRlhfQuestionAction
                 'stem' => Str::limit($data->stem, 100),
                 'turns' => $data->number_of_turns,
             ]);
+
+            if ($quizSectionId !== null) {
+                $section = QuizSection::query()->findOrFail($quizSectionId);
+                $this->attachAction->handle($section, $question);
+            }
 
             return $question;
         });

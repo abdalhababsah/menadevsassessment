@@ -1,31 +1,9 @@
-import { PropsWithChildren } from 'react';
-
-type Props = PropsWithChildren<{
-    turnNumber: number;
-    current?: boolean;
-}>;
-
-export function TurnContainer({ turnNumber, current = false, children }: Props) {
-    return (
-        <section
-            className={`rounded-[28px] border px-5 py-6 shadow-sm transition lg:px-7 ${
-                current
-                    ? 'border-emerald-200 bg-white'
-                    : 'border-slate-200/80 bg-white/80'
-            }`}
-        >
-            <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-                    T{turnNumber}
-                </div>
-                <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Conversation Turn</p>
-                    <h2 className="font-serif text-xl text-slate-950">
-                        {current ? `Turn ${turnNumber} in progress` : `Turn ${turnNumber}`}
-                    </h2>
-                </div>
-            </div>
-            {children}
-        </section>
-    );
+import { cn } from "@/lib/utils";
+export function TurnContainer({ children, turnNumber, current = false }: any) {
+  return (
+    <div className={cn("relative pl-8 border-l-2", current ? "border-verdant-500" : "border-stone-200")}>
+       <div className={cn("absolute -left-[11px] top-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm", current ? "bg-verdant-500" : "bg-stone-300")}>{turnNumber}</div>
+       <div className={cn("rounded-3xl p-6 mb-8", current ? "bg-white ring-1 ring-stone-200 shadow-sm" : "opacity-60")}>{children}</div>
+    </div>
+  );
 }

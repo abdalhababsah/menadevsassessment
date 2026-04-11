@@ -1,5 +1,16 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface UserRow {
     id: number;
@@ -13,7 +24,6 @@ interface UserRow {
 
 export default function Index({ users }: { users: UserRow[] }) {
     const handleDeactivate = (user: UserRow) => {
-        if (!confirm(`Deactivate ${user.name}?`)) return;
         router.delete(route('admin.users.destroy', user.id));
     };
 
@@ -76,11 +86,32 @@ export default function Index({ users }: { users: UserRow[] }) {
                                     <Link href={route('admin.users.edit', user.id)} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
                                     {!user.is_super_admin && (
                                         user.is_active ? (
-                                            <button onClick={() => handleDeactivate(user)} className="ml-3 text-red-600 hover:text-red-900">
-                                                Deactivate
-                                            </button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button className="ml-3 text-red-600 hover:text-red-900 cursor-pointer">
+                                                        Deactivate
+                                                    </button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Deactivate User?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to deactivate {user.name}? This user will no longer be able to log in to the system.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction 
+                                                            variant="destructive"
+                                                            onClick={() => handleDeactivate(user)}
+                                                        >
+                                                            Deactivate User
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         ) : (
-                                            <button onClick={() => handleReactivate(user)} className="ml-3 text-green-600 hover:text-green-900">
+                                            <button onClick={() => handleReactivate(user)} className="ml-3 text-green-600 hover:text-green-900 cursor-pointer">
                                                 Reactivate
                                             </button>
                                         )
@@ -91,6 +122,7 @@ export default function Index({ users }: { users: UserRow[] }) {
                     </tbody>
                 </table>
             </div>
+
         </AdminLayout>
     );
 }
